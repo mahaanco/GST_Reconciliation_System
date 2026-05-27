@@ -6,3 +6,4 @@ rapidfuzz
 sqlalchemy
 plotly
 numpy
+xlrd==2.0.1
