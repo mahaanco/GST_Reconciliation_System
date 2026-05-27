@@ -33,18 +33,42 @@ def read_file(file):
         # XLSX FILE
         elif file_name.endswith('.xlsx'):
 
-            return pd.read_excel(
-                file,
-                engine='openpyxl'
-            )
+            try:
+
+                # NORMAL EXCEL FILE
+                return pd.read_excel(
+                    file,
+                    engine='openpyxl'
+                )
+
+            except:
+
+                # GST PORTAL FILE
+                return pd.read_excel(
+                    file,
+                    skiprows=2,
+                    engine='openpyxl'
+                )
 
         # XLS FILE
         elif file_name.endswith('.xls'):
 
-            return pd.read_excel(
-                file,
-                engine='xlrd'
-            )
+            try:
+
+                # NORMAL XLS FILE
+                return pd.read_excel(
+                    file,
+                    engine='xlrd'
+                )
+
+            except:
+
+                # GST PORTAL XLS FILE
+                return pd.read_excel(
+                    file,
+                    skiprows=2,
+                    engine='xlrd'
+                )
 
         else:
 
@@ -74,7 +98,7 @@ if purchase_file and gstr2b_file:
     purchase_df = read_file(purchase_file)
     gstr2b_df = read_file(gstr2b_file)
 
-    # STOP IF FILE READING FAILED
+    # STOP IF FILE READ FAILED
     if purchase_df is None or gstr2b_df is None:
         st.stop()
 
@@ -84,16 +108,19 @@ if purchase_file and gstr2b_file:
 
     st.success("Files Processed Successfully")
 
-    # RECONCILIATION ENGINE
+    # INITIALIZE RECON ENGINE
     recon_engine = GSTReconciliation(
         purchase_df,
         gstr2b_df
     )
 
+    # EXACT MATCHING
     reconciliation_df = recon_engine.exact_match()
 
+    # FUZZY MATCHING
     fuzzy_df = recon_engine.fuzzy_match()
 
+    # SUMMARY REPORT
     summary_df = ReportGenerator.summary_report(
         reconciliation_df
     )
@@ -126,11 +153,13 @@ if purchase_file and gstr2b_file:
         ]
     )
 
+    # KPI METRICS
     col1.metric("Perfect Matches", perfect_matches)
     col2.metric("Value Mismatch", value_mismatches)
     col3.metric("Missing in 2B", missing_in_2b)
     col4.metric("Missing in Books", missing_in_books)
 
+    # SUMMARY CHART
     st.subheader("Summary Chart")
 
     fig = px.pie(
@@ -140,8 +169,12 @@ if purchase_file and gstr2b_file:
         title='GST Reconciliation Status'
     )
 
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(
+        fig,
+        use_container_width=True
+    )
 
+    # DETAILED RECONCILIATION
     st.subheader("Detailed Reconciliation")
 
     st.dataframe(
@@ -150,6 +183,7 @@ if purchase_file and gstr2b_file:
         height=500
     )
 
+    # FUZZY MATCHES
     st.subheader("Fuzzy Matches")
 
     st.dataframe(
@@ -159,7 +193,10 @@ if purchase_file and gstr2b_file:
     )
 
     # CREATE EXPORT FOLDER
-    os.makedirs(EXPORT_FOLDER, exist_ok=True)
+    os.makedirs(
+        EXPORT_FOLDER,
+        exist_ok=True
+    )
 
     export_path = os.path.join(
         EXPORT_FOLDER,
@@ -174,7 +211,7 @@ if purchase_file and gstr2b_file:
         export_path
     )
 
-    # DOWNLOAD BUTTON
+    # DOWNLOAD REPORT
     with open(export_path, 'rb') as file:
 
         st.download_button(
