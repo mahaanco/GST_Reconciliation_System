@@ -35,8 +35,8 @@ class ExcelParser:
             ]
 
             if (
-                "gstin/uin" in row
-                or "gstin" in row
+                "gstin" in row
+                or "gstin/uin" in row
             ):
                 header_row = i
                 break
@@ -47,16 +47,6 @@ class ExcelParser:
             file,
             engine=engine,
             header=header_row
-        )
-
-df = pd.read_excel(
-    file,
-    engine="xlrd",
-    header=header_row
-)
-
-        raise ValueError(
-            f"Unsupported Excel format: {extension}"
         )
 
     @staticmethod
