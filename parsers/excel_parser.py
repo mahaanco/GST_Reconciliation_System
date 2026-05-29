@@ -12,39 +12,42 @@ class ExcelParser:
             .lower()
         )
 
-        if extension == "xlsx":
-
-            return pd.read_excel(
-                file,
-                engine="openpyxl"
-            )
-
-        elif extension == "xls":
-
-            df = pd.read_excel(
-    file,
-    engine="xlrd",
-    header=None
-)
-
-for i in range(min(20, len(df))):
-
-    row = [
-        str(x).strip().lower()
-        for x in df.iloc[i].tolist()
-    ]
-
-    if (
-        "gstin" in row
-        and
-        (
-            "invoice no" in row
-            or
-            "invoice number" in row
+        engine = (
+            "openpyxl"
+            if extension == "xlsx"
+            else "xlrd"
         )
-    ):
-        header_row = i
-        break
+
+        preview = pd.read_excel(
+            file,
+            engine=engine,
+            header=None,
+            nrows=20
+        )
+
+        header_row = 0
+
+        for i in range(len(preview)):
+
+            row = [
+                str(x).strip().lower()
+                for x in preview.iloc[i]
+            ]
+
+            if (
+                "gstin/uin" in row
+                or "gstin" in row
+            ):
+                header_row = i
+                break
+
+        file.seek(0)
+
+        return pd.read_excel(
+            file,
+            engine=engine,
+            header=header_row
+        )
 
 df = pd.read_excel(
     file,
