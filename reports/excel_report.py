@@ -1,16 +1,17 @@
 import io
 import pandas as pd
 
-from reports.summary import SummaryGenerator
+from reports.summary import (
+    SummaryGenerator
+)
 
 
 class ExcelReportGenerator:
 
     @staticmethod
-    def generate(results):
-        from reports.summary import (
-    SummaryGenerator
-)
+    def generate(
+        results
+    ):
 
         output = io.BytesIO()
 
@@ -21,36 +22,28 @@ class ExcelReportGenerator:
 
             workbook = writer.book
 
-            header_format = workbook.add_format({
-                "bold": True,
-                "border": 1
-            })
+            header_format = (
+                workbook.add_format(
+                    {
+                        "bold": True,
+                        "border": 1
+                    }
+                )
+            )
 
             summary_df = (
-                SummaryGenerator.generate(
+                SummaryGenerator
+                .generate_summary(
                     results
                 )
             )
 
-            summary_df.to_excel(
+            ExcelReportGenerator.write_sheet(
                 writer,
-                sheet_name="Summary",
-                index=False
+                summary_df,
+                "Summary",
+                header_format
             )
-
-            worksheet = (
-                writer.sheets["Summary"]
-            )
-
-            for col_num, value in enumerate(
-                summary_df.columns.values
-            ):
-                worksheet.write(
-                    0,
-                    col_num,
-                    value,
-                    header_format
-                )
 
             ExcelReportGenerator.write_sheet(
                 writer,
@@ -62,14 +55,14 @@ class ExcelReportGenerator:
             ExcelReportGenerator.write_sheet(
                 writer,
                 results["source_only"],
-                "Missing_in_Target",
+                "Missing_In_Target",
                 header_format
             )
 
             ExcelReportGenerator.write_sheet(
                 writer,
                 results["target_only"],
-                "Missing_in_Source",
+                "Missing_In_Source",
                 header_format
             )
 
@@ -94,6 +87,20 @@ class ExcelReportGenerator:
                 header_format
             )
 
+            ExcelReportGenerator.write_sheet(
+                writer,
+                results["source_duplicates"],
+                "Source_Duplicates",
+                header_format
+            )
+
+            ExcelReportGenerator.write_sheet(
+                writer,
+                results["target_duplicates"],
+                "Target_Duplicates",
+                header_format
+            )
+
         output.seek(0)
 
         return output
@@ -107,11 +114,14 @@ class ExcelReportGenerator:
     ):
 
         if df.empty:
-            df = pd.DataFrame({
-                "Message": [
-                    "No records found"
-                ]
-            })
+
+            df = pd.DataFrame(
+                {
+                    "Message": [
+                        "No records found"
+                    ]
+                }
+            )
 
         df.to_excel(
             writer,
@@ -120,12 +130,15 @@ class ExcelReportGenerator:
         )
 
         worksheet = (
-            writer.sheets[sheet_name]
+            writer.sheets[
+                sheet_name
+            ]
         )
 
         for col_num, value in enumerate(
             df.columns.values
         ):
+
             worksheet.write(
                 0,
                 col_num,
@@ -133,18 +146,23 @@ class ExcelReportGenerator:
                 header_format
             )
 
-        for idx, col in enumerate(df.columns):
+        for idx, col in enumerate(
+            df.columns
+        ):
 
             max_len = max(
                 len(str(col)),
                 df[col]
                 .astype(str)
-                .map(len)
+                .str.len()
                 .max()
             )
 
             worksheet.set_column(
                 idx,
                 idx,
-                min(max_len + 5, 40)
+                min(
+                    max_len + 5,
+                    50
+                )
             )
