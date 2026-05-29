@@ -35,14 +35,22 @@ class Reconciler:
         )
 
     def reconcile(
-        self,
-        source_df,
-        target_df,
-        gstin_col,
-        invoice_col,
-        amount_col=None,
-        date_col=None
-    ):
+    self,
+    source_df,
+    target_df,
+
+    source_gstin_col,
+    target_gstin_col,
+
+    source_invoice_col,
+    target_invoice_col,
+
+    source_amount_col=None,
+    target_amount_col=None,
+
+    source_date_col=None,
+    target_date_col=None
+):
 
         source_df = (
             ExactMatcher
