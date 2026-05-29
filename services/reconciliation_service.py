@@ -1,69 +1,124 @@
-from core.mapper import ColumnMapper
-from core.reconciler import Reconciler
+from core.mapper import (
+    ColumnMapper
+)
+
+from core.cleaner import (
+    DataCleaner
+)
+
+from core.reconciler import (
+    Reconciler
+)
 
 
 class ReconciliationService:
 
-    def __init__(self):
+    def __init__(
+        self,
+        mapping_file="config/mapping.json"
+    ):
 
-        self.mapper = ColumnMapper(
-            "config/mapping.json"
+        self.mapper = (
+            ColumnMapper(
+                mapping_file
+            )
         )
 
-        self.engine = Reconciler()
-     def run(
-    self,
-    source_df,
-    target_df
-):
+    def run(
+        self,
+        source_df,
+        target_df,
+        amount_tolerance=1,
+        date_tolerance=3,
+        fuzzy_threshold=95
+    ):
 
-    source_mapping = self.mapper.map_columns(
-        source_df
-    )
-
-    target_mapping = self.mapper.map_columns(
-        target_df
-    )
-
-    missing_source = (
-        self.mapper.validate_mapping(
-            source_mapping
-        )
-    )
-
-    missing_target = (
-        self.mapper.validate_mapping(
-            target_mapping
-        )
-    )
-
-    if missing_source:
-        raise ValueError(
-            f"Source missing columns: {missing_source}"
+        source_mapping = (
+            self.mapper.map_columns(
+                source_df
+            )
         )
 
-    if missing_target:
-        raise ValueError(
-            f"Target missing columns: {missing_target}"
+        target_mapping = (
+            self.mapper.map_columns(
+                target_df
+            )
         )
 
-    amount_col = source_mapping.get(
-        "gst_amount"
-    )
+        missing_source = (
+            self.mapper.validate_mapping(
+                source_mapping
+            )
+        )
 
-    date_col = source_mapping.get(
-        "invoice_date"
-    )
+        missing_target = (
+            self.mapper.validate_mapping(
+                target_mapping
+            )
+        )
 
-    return self.engine.reconcile(
-        source_df=source_df,
-        target_df=target_df,
-        gstin_col=source_mapping["gstin"],
-        invoice_col=source_mapping[
-            "invoice_number"
-        ],
-        amount_col=amount_col,
-        date_col=date_col
-    )
+        if missing_source:
 
+            raise ValueError(
+                f"Source missing columns: {missing_source}"
+            )
+
+        if missing_target:
+
+            raise ValueError(
+                f"Target missing columns: {missing_target}"
+            )
+
+        source_df = (
+            DataCleaner.standardize_dataframe(
+                source_df,
+                source_mapping
+            )
+        )
+
+        target_df = (
+            DataCleaner.standardize_dataframe(
+                target_df,
+                target_mapping
+            )
+        )
+
+        engine = Reconciler(
+            amount_tolerance=
+            amount_tolerance,
+
+            date_tolerance=
+            date_tolerance,
+
+            fuzzy_threshold=
+            fuzzy_threshold
+        )
+
+        return engine.reconcile(
+            source_df=
+                source_df,
+
+            target_df=
+                target_df,
+
+            gstin_col=
+                source_mapping[
+                    "gstin"
+                ],
+
+            invoice_col=
+                source_mapping[
+                    "invoice_number"
+                ],
+
+            amount_col=
+                source_mapping.get(
+                    "gst_amount"
+                ),
+
+            date_col=
+                source_mapping.get(
+                    "invoice_date"
+                )
+        )
     
