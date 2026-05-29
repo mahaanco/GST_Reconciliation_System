@@ -4,14 +4,15 @@ import pandas as pd
 class ExactMatcher:
 
     @staticmethod
-    def create_key(
+    def create_match_key(
         df,
         gstin_col,
         invoice_col
     ):
+
         result = df.copy()
 
-        result["match_key"] = (
+        result["MATCH_KEY"] = (
             result[gstin_col]
             .astype(str)
             .str.upper()
@@ -28,36 +29,38 @@ class ExactMatcher:
         return result
 
     @staticmethod
-    def exact_match(
+    def match(
         source_df,
         target_df
     ):
 
         source_keys = set(
-            source_df["match_key"]
+            source_df["MATCH_KEY"]
         )
 
         target_keys = set(
-            target_df["match_key"]
+            target_df["MATCH_KEY"]
         )
 
         matched_keys = (
             source_keys
-            .intersection(target_keys)
+            .intersection(
+                target_keys
+            )
         )
 
         matched = source_df[
-            source_df["match_key"]
+            source_df["MATCH_KEY"]
             .isin(matched_keys)
         ].copy()
 
         source_only = source_df[
-            ~source_df["match_key"]
+            ~source_df["MATCH_KEY"]
             .isin(matched_keys)
         ].copy()
 
         target_only = target_df[
-            ~target_df["match_key"]
+            ~target_df["MATCH_KEY"]
             .isin(matched_keys)
         ].copy()
 
