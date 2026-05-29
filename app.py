@@ -1,4 +1,4 @@
-```python
+
 import streamlit as st
 
 from services.upload_service import UploadService
@@ -251,4 +251,4 @@ if source_file and target_file:
         st.error(
             f"Error: {str(e)}"
         )
-```
+
