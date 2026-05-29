@@ -11,53 +11,59 @@ class ReconciliationService:
         )
 
         self.engine = Reconciler()
+     def run(
+    self,
+    source_df,
+    target_df
+):
 
-    def run(
-        self,
-        source_df,
+    source_mapping = self.mapper.map_columns(
+        source_df
+    )
+
+    target_mapping = self.mapper.map_columns(
         target_df
-    ):
+    )
 
-        source_mapping = (
-            self.mapper.map_columns(
-                source_df
-            )
+    missing_source = (
+        self.mapper.validate_mapping(
+            source_mapping
+        )
+    )
+
+    missing_target = (
+        self.mapper.validate_mapping(
+            target_mapping
+        )
+    )
+
+    if missing_source:
+        raise ValueError(
+            f"Source missing columns: {missing_source}"
         )
 
-        target_mapping = (
-            self.mapper.map_columns(
-                target_df
-            )
+    if missing_target:
+        raise ValueError(
+            f"Target missing columns: {missing_target}"
         )
 
-        missing_source = (
-            self.mapper.validate_mapping(
-                source_mapping
-            )
-        )
+    amount_col = source_mapping.get(
+        "gst_amount"
+    )
 
-        missing_target = (
-            self.mapper.validate_mapping(
-                target_mapping
-            )
-        )
+    date_col = source_mapping.get(
+        "invoice_date"
+    )
 
-        if (
-            missing_source
-            or
-            missing_target
-        ):
-            raise ValueError(
-                "Required columns missing"
-            )
+    return self.engine.reconcile(
+        source_df=source_df,
+        target_df=target_df,
+        gstin_col=source_mapping["gstin"],
+        invoice_col=source_mapping[
+            "invoice_number"
+        ],
+        amount_col=amount_col,
+        date_col=date_col
+    )
 
-        return self.engine.reconcile(
-            source_df=source_df,
-            target_df=target_df,
-            gstin_col=source_mapping[
-                "gstin"
-            ],
-            invoice_col=source_mapping[
-                "invoice_number"
-            ]
-        )
+    
