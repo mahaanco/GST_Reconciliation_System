@@ -138,6 +138,11 @@ if source_file and target_file:
                 target_file
             )
         )
+        st.subheader("DEBUG - SOURCE COLUMNS")
+        st.write(source_df.columns.tolist())
+
+        st.subheader("DEBUG - TARGET COLUMNS")
+        st.write(target_df.columns.tolist())
 
         st.success(
             "Files loaded successfully."
