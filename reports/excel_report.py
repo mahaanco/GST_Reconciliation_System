@@ -8,6 +8,9 @@ class ExcelReportGenerator:
 
     @staticmethod
     def generate(results):
+        from reports.summary import (
+    SummaryGenerator
+)
 
         output = io.BytesIO()
 
