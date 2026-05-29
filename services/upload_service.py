@@ -1,11 +1,13 @@
-from parsers.file_reader import FileReader
+from parsers.file_reader import (
+    FileReader
+)
 
 
 class UploadService:
 
     @staticmethod
-    def load(file):
+    def load_file(file):
 
-        df = FileReader.read(file)
-
-        return df
+        return FileReader.read(
+            file
+        )
