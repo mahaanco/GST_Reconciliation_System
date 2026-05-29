@@ -46,6 +46,12 @@ st.sidebar.header(
     "Reconciliation Settings"
 )
 
+st.subheader("Source Columns")
+st.write(source_df.columns.tolist())
+
+st.subheader("Target Columns")
+st.write(target_df.columns.tolist())
+
 reconciliation_type = (
     st.sidebar.selectbox(
         "Reconciliation Type",
