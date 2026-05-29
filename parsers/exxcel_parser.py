@@ -13,17 +13,37 @@ class ExcelParser:
         )
 
         if extension == "xlsx":
+
             return pd.read_excel(
                 file,
                 engine="openpyxl"
             )
 
-        if extension == "xls":
+        elif extension == "xls":
+
             return pd.read_excel(
                 file,
                 engine="xlrd"
             )
 
         raise ValueError(
-            "Unsupported Excel format"
+            f"Unsupported Excel format: {extension}"
+        )
+
+    @staticmethod
+    def get_sheet_names(file):
+
+        excel_file = pd.ExcelFile(file)
+
+        return excel_file.sheet_names
+
+    @staticmethod
+    def read_sheet(
+        file,
+        sheet_name
+    ):
+
+        return pd.read_excel(
+            file,
+            sheet_name=sheet_name
         )
