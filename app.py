@@ -46,11 +46,7 @@ st.sidebar.header(
     "Reconciliation Settings"
 )
 
-st.subheader("Source Columns")
-st.write(source_df.columns.tolist())
 
-st.subheader("Target Columns")
-st.write(target_df.columns.tolist())
 
 reconciliation_type = (
     st.sidebar.selectbox(
@@ -146,7 +142,11 @@ if source_file and target_file:
 
         st.success(
             "Files loaded successfully."
-        )
+        )st.subheader("Source Columns")
+st.write(source_df.columns.tolist())
+
+st.subheader("Target Columns")
+st.write(target_df.columns.tolist())
 
         col1, col2 = st.columns(2)
 
