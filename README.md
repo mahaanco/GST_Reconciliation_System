@@ -1,251 +1,166 @@
-# GST Reconciliation Automation System
+# GST Reconciliation System
 
-A production-ready GST reconciliation platform built using Python and Streamlit for automating GSTR-2B vs Purchase Register reconciliation.
+A Streamlit-based GST Reconciliation application for comparing Purchase Registers, Sales Registers, GSTR-2B, and GSTR-1 data.
 
----
+## Features
 
-# Features
+* Purchase Register vs GSTR-2B Reconciliation
+* Sales Register vs GSTR-1 Reconciliation
+* Automatic Column Mapping
+* GSTIN Validation
+* Invoice Number Standardization
+* Exact Matching
+* Fuzzy Invoice Matching
+* Amount Variance Detection
+* Date Variance Detection
+* Duplicate Invoice Detection
+* Excel Report Generation
+* Streamlit Dashboard
+* Downloadable Reconciliation Reports
 
-- GSTR-2B vs Purchase Register reconciliation
-- Exact invoice matching
-- Fuzzy invoice matching
-- Value mismatch detection
-- Missing invoice identification
-- GSTIN standardization
-- Dashboard analytics
-- Excel report export
-- Streamlit-based UI
-- Production-ready modular architecture
+## Supported File Formats
 
----
+* XLSX
+* XLS
+* CSV
 
-# Project Structure
+## Project Structure
 
-```bash
-GST_Reconciliation_System/
-│
+```text
+gst-reconciliation/
+
 ├── app.py
-├── reconciliation_engine.py
-├── report_generator.py
-├── utils.py
-├── database.py
-├── config.py
 ├── requirements.txt
-├── uploads/
-├── exports/
+│
+├── .streamlit/
+│   └── config.toml
+│
+├── config/
+│   └── mapping.json
+│
+├── core/
+│   ├── cleaner.py
+│   ├── validator.py
+│   ├── mapper.py
+│   ├── matcher.py
+│   ├── duplicate_detector.py
+│   ├── fuzzy_matcher.py
+│   └── reconciler.py
+│
+├── parsers/
+│   ├── excel_parser.py
+│   ├── csv_parser.py
+│   └── file_reader.py
+│
+├── services/
+│   ├── upload_service.py
+│   └── reconciliation_service.py
+│
+├── reports/
+│   ├── summary.py
+│   └── excel_report.py
+│
 └── README.md
 ```
 
----
+## Installation
 
-# Tech Stack
-
-- Python
-- Streamlit
-- Pandas
-- Plotly
-- RapidFuzz
-- SQLAlchemy
-- XlsxWriter
-
----
-
-# Installation
-
-## Clone Repository
+Clone the repository:
 
 ```bash
-git clone <your-repository-url>
-cd GST_Reconciliation_System
+git clone <repository-url>
+cd gst-reconciliation
 ```
 
----
-
-## Create Virtual Environment
-
-### Windows
-
-```bash
-python -m venv venv
-venv\Scripts\activate
-```
-
-### Linux / Mac
-
-```bash
-python3 -m venv venv
-source venv/bin/activate
-```
-
----
-
-## Install Dependencies
+Install dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
----
-
-# Run Application
+Run the application:
 
 ```bash
 streamlit run app.py
 ```
 
----
+## Deployment
 
-# Input File Requirements
+This application can be deployed directly on Streamlit Community Cloud.
 
-## Purchase Register Columns
+### Steps
 
-Required columns:
+1. Push the project to GitHub.
+2. Login to Streamlit Community Cloud.
+3. Connect your GitHub account.
+4. Select the repository.
+5. Set the main file path as:
 
-- GSTIN
-- Invoice No
-- Invoice Date
-- Taxable Value
-- GST Amount
+```text
+app.py
+```
 
----
+6. Deploy the application.
 
-## GSTR-2B Columns
+## Reconciliation Workflow
 
-Required columns:
+1. Upload Source File
+2. Upload Target File
+3. Configure Matching Parameters
+4. Run Reconciliation
+5. Review Results
+6. Download Excel Report
 
-- GSTIN
-- Invoice No
-- Invoice Date
-- Taxable Value
-- GST Amount
+## Generated Report Sheets
 
----
+* Summary
+* Matched
+* Missing In Target
+* Missing In Source
+* Amount Mismatch
+* Date Mismatch
+* Fuzzy Matches
+* Source Duplicates
+* Target Duplicates
 
-# Reconciliation Categories
+## Matching Logic
 
-| Category | Description |
-|---|---|
-| Perfect Match | Invoice matched successfully |
-| Value Mismatch | Invoice exists but values differ |
-| Missing in 2B | Present in books but absent in GSTR-2B |
-| Missing in Books | Present in GSTR-2B but absent in books |
-| Fuzzy Match | Similar invoice detected using fuzzy logic |
+### Exact Match
 
----
+* GSTIN
+* Invoice Number
 
-# Features Explained
+### Fuzzy Match
 
-## Exact Matching
-
-Matches invoices using:
-
-- GSTIN
-- Invoice Number
-
-with configurable tolerance for value differences.
-
----
-
-## Fuzzy Matching
-
-Uses RapidFuzz similarity scoring to identify:
-
-- Invoice formatting differences
-- Typographical variations
-- Minor invoice mismatches
+Used when invoice numbers differ slightly.
 
 Example:
 
 ```text
 INV001
 INV-001
-INV / 001
 ```
 
----
+### Amount Validation
 
-# Dashboard Analytics
+Configurable tolerance-based matching.
 
-Includes:
+### Date Validation
 
-- Match summary
-- Pie chart analytics
-- Exception reporting
-- Reconciliation statistics
+Configurable date tolerance matching.
 
----
+## Future Enhancements
 
-# Excel Export
+* Multi-sheet Excel Support
+* PDF Support
+* OCR Support
+* Vendor Compliance Dashboard
+* GSTR-2A Reconciliation
+* Books vs GSTR-3B Reconciliation
+* E-Invoice Reconciliation
+* E-Way Bill Reconciliation
+* Multi-Client Management
 
-Generated report includes:
+## License
 
-- Reconciliation Sheet
-- Fuzzy Match Sheet
-- Summary Report
-
----
-
-# Configuration
-
-Update values in `config.py`
-
-```python
-MATCH_THRESHOLD = 90
-VALUE_TOLERANCE = 5
-```
-
----
-
-# Recommended Future Enhancements
-
-## Phase 2
-
-- Multi-client support
-- PostgreSQL integration
-- User authentication
-- Vendor compliance scoring
-- Auto email reminders
-- GSTIN API validation
-- AI-generated commentary
-
----
-
-## Phase 3
-
-- Tally integration
-- SAP integration
-- ERP connectors
-- Cloud deployment
-- SaaS architecture
-- AI compliance assistant
-
----
-
-# Deployment Options
-
-Recommended platforms:
-
-- AWS
-- Azure
-- GCP
-- Render
-- Railway
-
----
-
-# Commercial Use Cases
-
-This solution can be used for:
-
-- CA firms
-- CFO advisory services
-- GST outsourcing firms
-- SMEs
-- Internal finance teams
-- Shared service centers
-
----
-
-# License
-
-This project is intended for internal and commercial business automation purposes.
+This project is intended for internal business use.
