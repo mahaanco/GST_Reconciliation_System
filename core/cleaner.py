@@ -48,9 +48,10 @@ class DataCleaner:
 
         try:
             return pd.to_datetime(
-                value,
-                errors="coerce"
-            )
+            value,
+            errors="coerce",
+            dayfirst=True
+     )
         except Exception:
             return pd.NaT
 
