@@ -1,9 +1,10 @@
 import re
+import pandas as pd
 
 
 class GSTValidator:
 
-    GSTIN_PATTERN = (
+    GSTIN_REGEX = (
         r'^[0-9]{2}'
         r'[A-Z]{5}'
         r'[0-9]{4}'
@@ -19,20 +20,24 @@ class GSTValidator:
         gstin
     ):
 
-        if not gstin:
+        if pd.isna(gstin):
             return False
 
-        gstin = str(gstin).strip().upper()
+        gstin = (
+            str(gstin)
+            .upper()
+            .strip()
+        )
 
         return bool(
             re.match(
-                cls.GSTIN_PATTERN,
+                cls.GSTIN_REGEX,
                 gstin
             )
         )
 
     @classmethod
-    def validate_column(
+    def validate_dataframe(
         cls,
         df,
         gstin_column
@@ -40,7 +45,9 @@ class GSTValidator:
 
         result = df.copy()
 
-        result["gstin_valid"] = (
+        result[
+            "GSTIN_VALID"
+        ] = (
             result[gstin_column]
             .apply(
                 cls.is_valid_gstin
@@ -48,3 +55,23 @@ class GSTValidator:
         )
 
         return result
+
+    @classmethod
+    def get_invalid_records(
+        cls,
+        df,
+        gstin_column
+    ):
+
+        validated = (
+            cls.validate_dataframe(
+                df,
+                gstin_column
+            )
+        )
+
+        return validated[
+            validated[
+                "GSTIN_VALID"
+            ] == False
+        ]
