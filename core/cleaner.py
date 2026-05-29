@@ -1,5 +1,5 @@
-import pandas as pd
 import re
+import pandas as pd
 
 
 class DataCleaner:
@@ -26,7 +26,11 @@ class DataCleaner:
         if pd.isna(gstin):
             return ""
 
-        return str(gstin).upper().strip()
+        return (
+            str(gstin)
+            .upper()
+            .strip()
+        )
 
     @staticmethod
     def clean_amount(value):
@@ -36,35 +40,96 @@ class DataCleaner:
                 float(value),
                 2
             )
-
-        except:
+        except Exception:
             return 0.0
 
     @staticmethod
-    def clean_date(date_value):
+    def clean_date(value):
 
         try:
             return pd.to_datetime(
-                date_value,
+                value,
                 errors="coerce"
             )
-
-        except:
+        except Exception:
             return pd.NaT
 
-    @staticmethod
-    def standardize_dataframe(df):
+    @classmethod
+    def standardize_dataframe(
+        cls,
+        df,
+        column_mapping
+    ):
+        """
+        Standardizes critical columns.
+        """
 
         df = df.copy()
 
-        for col in df.columns:
-
-            if df[col].dtype == "object":
-
-                df[col] = (
-                    df[col]
-                    .astype(str)
-                    .str.strip()
+        if column_mapping.get("gstin"):
+            df[
+                column_mapping["gstin"]
+            ] = (
+                df[
+                    column_mapping["gstin"]
+                ]
+                .apply(
+                    cls.clean_gstin
                 )
+            )
+
+        if column_mapping.get(
+            "invoice_number"
+        ):
+            df[
+                column_mapping[
+                    "invoice_number"
+                ]
+            ] = (
+                df[
+                    column_mapping[
+                        "invoice_number"
+                    ]
+                ]
+                .apply(
+                    cls.clean_invoice_number
+                )
+            )
+
+        if column_mapping.get(
+            "gst_amount"
+        ):
+            df[
+                column_mapping[
+                    "gst_amount"
+                ]
+            ] = (
+                df[
+                    column_mapping[
+                        "gst_amount"
+                    ]
+                ]
+                .apply(
+                    cls.clean_amount
+                )
+            )
+
+        if column_mapping.get(
+            "invoice_date"
+        ):
+            df[
+                column_mapping[
+                    "invoice_date"
+                ]
+            ] = (
+                df[
+                    column_mapping[
+                        "invoice_date"
+                    ]
+                ]
+                .apply(
+                    cls.clean_date
+                )
+            )
 
         return df
