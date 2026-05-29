@@ -1,7 +1,16 @@
 import pandas as pd
 
-from core.matcher import ExactMatcher
-from core.fuzzy_matcher import FuzzyMatcher
+from core.matcher import (
+    ExactMatcher
+)
+
+from core.duplicate_detector import (
+    DuplicateDetector
+)
+
+from core.fuzzy_matcher import (
+    FuzzyMatcher
+)
 
 
 class Reconciler:
@@ -9,7 +18,7 @@ class Reconciler:
     def __init__(
         self,
         amount_tolerance=1,
-        date_tolerance_days=3,
+        date_tolerance=3,
         fuzzy_threshold=95
     ):
 
@@ -17,8 +26,8 @@ class Reconciler:
             amount_tolerance
         )
 
-        self.date_tolerance_days = (
-            date_tolerance_days
+        self.date_tolerance = (
+            date_tolerance
         )
 
         self.fuzzy_threshold = (
@@ -36,7 +45,8 @@ class Reconciler:
     ):
 
         source_df = (
-            ExactMatcher.create_key(
+            ExactMatcher
+            .create_match_key(
                 source_df,
                 gstin_col,
                 invoice_col
@@ -44,10 +54,25 @@ class Reconciler:
         )
 
         target_df = (
-            ExactMatcher.create_key(
+            ExactMatcher
+            .create_match_key(
                 target_df,
                 gstin_col,
                 invoice_col
+            )
+        )
+
+        source_duplicates = (
+            DuplicateDetector
+            .detect(
+                source_df
+            )
+        )
+
+        target_duplicates = (
+            DuplicateDetector
+            .detect(
+                target_df
             )
         )
 
@@ -55,13 +80,15 @@ class Reconciler:
             matched,
             source_only,
             target_only
-        ) = ExactMatcher.exact_match(
-            source_df,
-            target_df
+        ) = (
+            ExactMatcher.match(
+                source_df,
+                target_df
+            )
         )
 
         amount_mismatch = (
-            self.check_amount_variance(
+            self._check_amount_mismatch(
                 matched,
                 target_df,
                 amount_col
@@ -71,7 +98,7 @@ class Reconciler:
         )
 
         date_mismatch = (
-            self.check_date_variance(
+            self._check_date_mismatch(
                 matched,
                 target_df,
                 date_col
@@ -81,7 +108,7 @@ class Reconciler:
         )
 
         fuzzy_matches = (
-            FuzzyMatcher.find_matches(
+            FuzzyMatcher.match(
                 source_only,
                 target_only,
                 gstin_col,
@@ -91,18 +118,33 @@ class Reconciler:
         )
 
         return {
-            "matched": matched,
-            "source_only": source_only,
-            "target_only": target_only,
+
+            "matched":
+                matched,
+
+            "source_only":
+                source_only,
+
+            "target_only":
+                target_only,
+
             "amount_mismatch":
                 amount_mismatch,
+
             "date_mismatch":
                 date_mismatch,
+
             "fuzzy_matches":
-                fuzzy_matches
+                fuzzy_matches,
+
+            "source_duplicates":
+                source_duplicates,
+
+            "target_duplicates":
+                target_duplicates
         }
 
-    def check_amount_variance(
+    def _check_amount_mismatch(
         self,
         matched_df,
         target_df,
@@ -111,36 +153,46 @@ class Reconciler:
 
         target_amounts = (
             target_df[
-                ["match_key", amount_col]
+                [
+                    "MATCH_KEY",
+                    amount_col
+                ]
             ]
             .rename(
                 columns={
                     amount_col:
-                    "target_amount"
+                    "TARGET_AMOUNT"
                 }
             )
         )
 
-        result = matched_df.merge(
-            target_amounts,
-            on="match_key",
-            how="left"
+        result = (
+            matched_df.merge(
+                target_amounts,
+                on="MATCH_KEY",
+                how="left"
+            )
         )
 
-        result["difference"] = (
+        result[
+            "AMOUNT_DIFF"
+        ] = (
             result[amount_col]
             -
-            result["target_amount"]
+            result[
+                "TARGET_AMOUNT"
+            ]
         )
 
         return result[
-            result["difference"]
-            .abs()
+            result[
+                "AMOUNT_DIFF"
+            ].abs()
             >
             self.amount_tolerance
         ]
 
-    def check_date_variance(
+    def _check_date_mismatch(
         self,
         matched_df,
         target_df,
@@ -149,30 +201,41 @@ class Reconciler:
 
         target_dates = (
             target_df[
-                ["match_key", date_col]
+                [
+                    "MATCH_KEY",
+                    date_col
+                ]
             ]
             .rename(
                 columns={
                     date_col:
-                    "target_date"
+                    "TARGET_DATE"
                 }
             )
         )
 
-        result = matched_df.merge(
-            target_dates,
-            on="match_key",
-            how="left"
+        result = (
+            matched_df.merge(
+                target_dates,
+                on="MATCH_KEY",
+                how="left"
+            )
         )
 
-        result["day_difference"] = (
+        result[
+            "DATE_DIFF"
+        ] = (
             (
                 pd.to_datetime(
-                    result[date_col]
+                    result[
+                        date_col
+                    ]
                 )
                 -
                 pd.to_datetime(
-                    result["target_date"]
+                    result[
+                        "TARGET_DATE"
+                    ]
                 )
             )
             .dt.days
@@ -180,7 +243,9 @@ class Reconciler:
         )
 
         return result[
-            result["day_difference"]
+            result[
+                "DATE_DIFF"
+            ]
             >
-            self.date_tolerance_days
+            self.date_tolerance
         ]
