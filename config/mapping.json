@@ -1,19 +1,24 @@
 {
   "gstin": [
-    "gstin",
-    "supplier gstin",
-    "vendor gstin",
-    "party gstin",
-    "gst no",
-    "gst number"
-  ],
+  "gstin",
+  "gstin/uin",
+  "supplier gstin",
+  "vendor gstin",
+  "party gstin",
+  "gst no",
+  "gst number"
+],
   "invoice_number": [
-    "invoice no",
-    "invoice number",
-    "bill no",
-    "voucher no",
-    "document number"
-  ],
+  "invoice no",
+  "invoice number",
+  "supplier invoice no.",
+  "supplier invoice no",
+  "bill no",
+  "bill number",
+  "voucher no",
+  "voucher no.",
+  "document number"
+],
   "invoice_date": [
     "invoice date",
     "bill date",
