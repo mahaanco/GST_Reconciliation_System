@@ -95,30 +95,18 @@ class ReconciliationService:
         )
 
         return engine.reconcile(
-            source_df=
-                source_df,
+    source_df=source_df,
+    target_df=target_df,
 
-            target_df=
-                target_df,
+    source_gstin_col=source_mapping["gstin"],
+    target_gstin_col=target_mapping["gstin"],
 
-            gstin_col=
-                source_mapping[
-                    "gstin"
-                ],
+    source_invoice_col=source_mapping["invoice_number"],
+    target_invoice_col=target_mapping["invoice_number"],
 
-            invoice_col=
-                source_mapping[
-                    "invoice_number"
-                ],
+    source_amount_col=source_mapping.get("gst_amount"),
+    target_amount_col=target_mapping.get("gst_amount"),
 
-            amount_col=
-                source_mapping.get(
-                    "gst_amount"
-                ),
-
-            date_col=
-                source_mapping.get(
-                    "invoice_date"
-                )
-        )
-    
+    source_date_col=source_mapping.get("invoice_date"),
+    target_date_col=target_mapping.get("invoice_date")
+)
