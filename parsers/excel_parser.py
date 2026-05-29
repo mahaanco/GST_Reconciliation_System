@@ -21,10 +21,36 @@ class ExcelParser:
 
         elif extension == "xls":
 
-            return pd.read_excel(
-                file,
-                engine="xlrd"
-            )
+            df = pd.read_excel(
+    file,
+    engine="xlrd",
+    header=None
+)
+
+for i in range(min(20, len(df))):
+
+    row = [
+        str(x).strip().lower()
+        for x in df.iloc[i].tolist()
+    ]
+
+    if (
+        "gstin" in row
+        and
+        (
+            "invoice no" in row
+            or
+            "invoice number" in row
+        )
+    ):
+        header_row = i
+        break
+
+df = pd.read_excel(
+    file,
+    engine="xlrd",
+    header=header_row
+)
 
         raise ValueError(
             f"Unsupported Excel format: {extension}"
