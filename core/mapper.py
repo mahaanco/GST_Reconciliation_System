@@ -14,17 +14,19 @@ class ColumnMapper:
             encoding="utf-8"
         ) as f:
 
-            self.mapping = json.load(f)
+            self.mapping = (
+                json.load(f)
+            )
 
-    def normalize_name(
-        self,
+    @staticmethod
+    def normalize(
         column_name
     ):
 
         return (
             str(column_name)
-            .strip()
             .lower()
+            .strip()
         )
 
     def map_columns(
@@ -32,32 +34,50 @@ class ColumnMapper:
         df
     ):
 
-        mapped = {}
+        detected = {}
 
         normalized_columns = {
-            self.normalize_name(col): col
+            self.normalize(col): col
             for col in df.columns
         }
 
-        for standard_name, aliases in self.mapping.items():
+        for (
+            standard_name,
+            aliases
+        ) in self.mapping.items():
 
-            found = None
+            detected[
+                standard_name
+            ] = None
 
             for alias in aliases:
 
-                alias = alias.lower()
+                alias = (
+                    alias
+                    .lower()
+                    .strip()
+                )
 
-                if alias in normalized_columns:
+                if (
+                    alias
+                    in
+                    normalized_columns
+                ):
 
-                    found = normalized_columns[alias]
+                    detected[
+                        standard_name
+                    ] = (
+                        normalized_columns[
+                            alias
+                        ]
+                    )
+
                     break
 
-            mapped[standard_name] = found
+        return detected
 
-        return mapped
-
+    @staticmethod
     def validate_mapping(
-        self,
         mapped_columns
     ):
 
@@ -68,10 +88,16 @@ class ColumnMapper:
 
         missing = []
 
-        for field in mandatory:
+        for col in mandatory:
 
-            if mapped_columns.get(field) is None:
-
-                missing.append(field)
+            if (
+                mapped_columns.get(
+                    col
+                )
+                is None
+            ):
+                missing.append(
+                    col
+                )
 
         return missing
