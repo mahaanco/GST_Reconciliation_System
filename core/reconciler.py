@@ -53,20 +53,20 @@ class Reconciler:
 ):
 
         source_df = (
-            ExactMatcher
-            .create_match_key(
-                source_df,
-                gstin_col,
-                invoice_col
+            ExactMatcher.create_match_key(
+            source_df,
+            source_gstin_col,
+            source_invoice_col
+)
             )
         )
 
         target_df = (
-            ExactMatcher
-            .create_match_key(
-                target_df,
-                gstin_col,
-                invoice_col
+            ExactMatcher.create_match_key(
+            target_df,
+            target_gstin_col,
+            target_invoice_col
+)
             )
         )
 
